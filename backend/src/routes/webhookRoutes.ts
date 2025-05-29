@@ -8,16 +8,14 @@ import {
 
 const router = Router();
 
-function verifyShopifyWebhook(req: any, res: any, buf: Buffer) {
+function verifyShopifyWebhook(req: any, buf: Buffer) {
 	const hmacHeader = req.get('x-shopify-hmac-sha256');
-	console.log('HMAC header:', hmacHeader);
-	console.log('Raw body:', buf.toString('utf8').substring(0, 100));
-	console.log('Secret:', process.env.SHOPIFY_WEBHOOK_SECRET);
-
 	const generatedHmac = crypto
 		.createHmac('sha256', process.env.SHOPIFY_WEBHOOK_SECRET!)
-		.update(buf.toString('utf8'))
+		.update(buf)
 		.digest('base64');
+	console.log('HMAC header:', hmacHeader);
+	console.log('Generated HMAC:', generatedHmac);
 	if (generatedHmac !== hmacHeader) {
 		throw new Error('Webhook HMAC verification failed!');
 	}
@@ -28,7 +26,7 @@ router.post(
 	express.raw({type: 'application/json'}),
 	async (req, res) => {
 		try {
-			verifyShopifyWebhook(req, res, req.body);
+			verifyShopifyWebhook(req, req.body);
 
 			const topic = req.get('x-shopify-topic');
 			const orderData = JSON.parse(req.body.toString('utf8'));
