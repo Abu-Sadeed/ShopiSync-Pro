@@ -3,6 +3,7 @@ import express from 'express';
 import pool from './config/db';
 import shopifyOrderRoutes from './routes/shopifyOrderRoutes';
 import webhookRoutes from './routes/webhookRoutes';
+import {syncAllOrdersBatchByBatch} from './services/syncService';
 
 dotenv.config();
 
@@ -24,6 +25,15 @@ pool.getConnection()
 		app.listen(port, () => {
 			console.log(`Server listening on port ${port}`);
 		});
+
+		// Background task to sync orders on initial startup
+		syncAllOrdersBatchByBatch()
+			.then(() => {
+				console.log('Initial order sync completed successfully');
+			})
+			.catch((err) => {
+				console.error('Error during initial order sync:', err.message);
+			});
 	})
 	.catch((err) => {
 		console.error('Failed to connect to MySQL:', err.message);
