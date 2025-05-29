@@ -14,6 +14,7 @@ export async function upsertCustomer(customer: any) {
     `;
 	await pool.execute(sql, [
 		customer.id.replace(/\D/g, ''),
+		customer.email ?? '',
 		customer.firstName,
 		customer.lastName,
 		customer.phone ?? '',

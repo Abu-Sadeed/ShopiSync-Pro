@@ -18,9 +18,8 @@ export async function syncAllOrdersBatchByBatch() {
 				endCursor,
 			);
 			const orders = edges.map((edge: any) => edge.node);
-
+			console.log(`Fetched ${orders.length} orders from Shopify`);
 			for (const order of orders) {
-				// Validation
 				if (!order.id || !order.customer) {
 					console.warn(
 						`Skipping order (missing id/customer):`,
@@ -28,10 +27,10 @@ export async function syncAllOrdersBatchByBatch() {
 					);
 					continue;
 				}
+
 				await upsertCustomer(order.customer);
 				await upsertOrder(order);
 
-				// Fetch and save all line items for this order
 				const lineItems = await fetchAllLineItemsForOrder(order.id);
 				for (const item of lineItems) {
 					await upsertOrderLineItem(order.id, item);
