@@ -33,3 +33,29 @@ export async function fetchShopifyOrdersPaginated(
 		throw error;
 	}
 }
+
+export async function fetchAllShopifyOrders() {
+	let hasNextPage = true;
+	let endCursor: string | undefined = undefined;
+	const allOrders: any[] = [];
+
+	while (hasNextPage) {
+		try {
+			const response = await fetchShopifyOrdersPaginated(50, endCursor);
+			const orders = response.edges.map((edge: any) => edge.node);
+
+			allOrders.push(...orders);
+
+			hasNextPage = response.pageInfo.hasNextPage;
+			endCursor = response.pageInfo.endCursor;
+
+			console.log(`Fetched batch of ${orders.length} orders.`);
+		} catch (error: any) {
+			console.error('Error fetching all orders:', error.message);
+			throw error;
+		}
+	}
+
+	console.log(`Total orders fetched: ${allOrders.length}`);
+	return allOrders;
+}
