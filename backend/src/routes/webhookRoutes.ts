@@ -14,8 +14,7 @@ function verifyShopifyWebhook(req: any, buf: Buffer) {
 		.createHmac('sha256', process.env.SHOPIFY_WEBHOOK_SECRET!)
 		.update(buf)
 		.digest('base64');
-	console.log('HMAC header:', hmacHeader);
-	console.log('Generated HMAC:', generatedHmac);
+
 	if (generatedHmac !== hmacHeader) {
 		throw new Error('Webhook HMAC verification failed!');
 	}

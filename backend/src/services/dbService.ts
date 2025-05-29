@@ -13,7 +13,7 @@ export async function upsertCustomer(customer: any) {
         updated_at = VALUES(updated_at)
     `;
 	await pool.execute(sql, [
-		customer.id.replace(/\D/g, ''),
+		customer.id.toString().replace(/\D/g, ''),
 		customer.email ?? '',
 		customer.firstName,
 		customer.lastName,
@@ -39,8 +39,10 @@ export async function upsertOrder(order: any) {
         processed_at = VALUES(processed_at)
     `;
 	await pool.execute(sql, [
-		order.id.replace(/\D/g, ''),
-		order.customer?.id ? order.customer.id.replace(/\D/g, '') : null,
+		order.id.toString().replace(/\D/g, ''),
+		order.customer?.id
+			? order.customer.id.toString().replace(/\D/g, '')
+			: null,
 		order.name,
 		order.totalPriceSet?.shopMoney?.amount ?? 0,
 		order.totalPriceSet?.shopMoney?.currencyCode ?? '',

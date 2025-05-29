@@ -8,11 +8,11 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT ?? 4000;
-
+app.use('/api', webhookRoutes);
 app.use(express.json());
 
 app.use('/api', shopifyOrderRoutes);
-app.use('/api', webhookRoutes);
+
 app.get('/', (req, res) => {
 	res.send('Shopify Sync Backend is running!');
 });
