@@ -9,8 +9,8 @@ if (!process.env.SHOPIFY_SHOP || !process.env.SHOPIFY_ACCESS_TOKEN) {
 }
 
 const shopify = new Shopify({
-	shopName: process.env.SHOPIFY_SHOP!,
-	accessToken: process.env.SHOPIFY_ACCESS_TOKEN!,
+	shopName: process.env.SHOPIFY_SHOP,
+	accessToken: process.env.SHOPIFY_ACCESS_TOKEN,
 });
 
 export default shopify;
