@@ -1,17 +1,26 @@
-import {upsertCustomer, upsertOrder, upsertOrderLineItem} from './dbService';
-import {fetchAllLineItemsForOrder} from './shopifyLineItemService';
-import {fetchAllShopifyOrders} from './shopifyOrderService';
+import {
+	upsertCustomer,
+	upsertOrder,
+	upsertOrderLineItem,
+} from '../services/dbService';
+import {fetchAllLineItemsForOrder} from '../services/shopifyLineItemService';
+import {fetchShopifyOrdersPaginated} from '../services/shopifyOrderService';
 
-export async function syncAllOrders() {
+export async function syncAllOrdersBatchByBatch() {
 	let hasNextPage = true;
 	let endCursor: string | undefined = undefined;
 	let totalOrders = 0;
 
 	while (hasNextPage) {
 		try {
-			const orders = await fetchAllShopifyOrders();
+			const {edges, pageInfo} = await fetchShopifyOrdersPaginated(
+				50,
+				endCursor,
+			);
+			const orders = edges.map((edge: any) => edge.node);
 
 			for (const order of orders) {
+				// Validation
 				if (!order.id || !order.customer) {
 					console.warn(
 						`Skipping order (missing id/customer):`,
@@ -19,28 +28,31 @@ export async function syncAllOrders() {
 					);
 					continue;
 				}
-
 				await upsertCustomer(order.customer);
-
 				await upsertOrder(order);
 
+				// Fetch and save all line items for this order
 				const lineItems = await fetchAllLineItemsForOrder(order.id);
 				for (const item of lineItems) {
 					await upsertOrderLineItem(order.id, item);
 				}
 				totalOrders++;
-
 				await handleRateLimit();
 			}
 
-			console.log(`Synced batch. Total orders processed: ${totalOrders}`);
+			hasNextPage = pageInfo.hasNextPage;
+			endCursor = pageInfo.endCursor;
+
+			console.log(
+				`Processed batch. Total orders processed so far: ${totalOrders}`,
+			);
 		} catch (err: any) {
 			console.error('Sync failed:', err.message);
-
 			break;
 		}
 	}
-	console.log(`Sync completed. Total orders: ${totalOrders}`);
+
+	console.log(`Sync completed. Total orders processed: ${totalOrders}`);
 }
 
 async function handleRateLimit() {

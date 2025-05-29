@@ -1,8 +1,8 @@
 import pool from '../config/db';
-import {syncAllOrders} from '../services/syncService';
+import {syncAllOrdersBatchByBatch} from '../services/syncService';
 
 // Run the script
-syncAllOrders()
+syncAllOrdersBatchByBatch()
 	.then(() => {
 		console.log('All done!');
 		pool.end();
