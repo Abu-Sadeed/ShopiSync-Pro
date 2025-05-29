@@ -1,0 +1,24 @@
+# Node
+node_modules/
+dist/
+.env
+.env.*
+npm-debug.log*
+
+# Docker
+mysql_data/
+docker-compose.override.yml
+
+# System
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# Logs
+*.log
+
+# Ignore backend and frontend local .env
+backend/.env
+frontend/.env
