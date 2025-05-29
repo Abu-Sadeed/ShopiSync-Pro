@@ -12,15 +12,33 @@ export async function upsertCustomer(customer: any) {
         created_at = VALUES(created_at),
         updated_at = VALUES(updated_at)
     `;
-	await pool.execute(sql, [
-		customer.id.toString().replace(/\D/g, ''),
-		customer.email ?? '',
-		customer.firstName,
-		customer.lastName,
-		customer.phone ?? '',
-		customer.createdAt ? new Date(customer.createdAt) : null,
-		customer.updatedAt ? new Date(customer.updatedAt) : null,
-	]);
+	try {
+		const customerId = customer.id
+			? customer.id.toString().replace(/\D/g, '')
+			: null;
+
+		if (!customerId) {
+			console.warn('Customer upsert skipped: missing id:', customer);
+			return;
+		}
+
+		await pool.execute(sql, [
+			customerId,
+			customer.email ?? null,
+			customer.firstName ?? null,
+			customer.lastName ?? null,
+			customer.phone ?? null,
+			customer.createdAt ? new Date(customer.createdAt) : null,
+			customer.updatedAt ? new Date(customer.updatedAt) : null,
+		]);
+	} catch (err: any) {
+		console.error(
+			'Error in upsertCustomer:',
+			err,
+			'Customer data:',
+			customer,
+		);
+	}
 }
 
 export async function upsertOrder(order: any) {
@@ -38,20 +56,33 @@ export async function upsertOrder(order: any) {
         updated_at = VALUES(updated_at),
         processed_at = VALUES(processed_at)
     `;
-	await pool.execute(sql, [
-		order.id.toString().replace(/\D/g, ''),
-		order.customer?.id
+	try {
+		const orderId = order.id
+			? order.id.toString().replace(/\D/g, '')
+			: null;
+		if (!orderId) {
+			console.warn('Order upsert skipped: missing id:', order);
+			return;
+		}
+		const customerId = order.customer?.id
 			? order.customer.id.toString().replace(/\D/g, '')
-			: null,
-		order.name,
-		order.totalPriceSet?.shopMoney?.amount ?? 0,
-		order.totalPriceSet?.shopMoney?.currencyCode ?? '',
-		order.financialStatus ?? '',
-		order.fulfillmentStatus ?? '',
-		order.createdAt ? new Date(order.createdAt) : null,
-		order.updatedAt ? new Date(order.updatedAt) : null,
-		order.processedAt ? new Date(order.processedAt) : null,
-	]);
+			: null;
+
+		await pool.execute(sql, [
+			orderId,
+			customerId,
+			order.name ?? null,
+			order.totalPriceSet?.shopMoney?.amount ?? 0,
+			order.totalPriceSet?.shopMoney?.currencyCode ?? null,
+			order.financialStatus ?? null,
+			order.fulfillmentStatus ?? null,
+			order.createdAt ? new Date(order.createdAt) : null,
+			order.updatedAt ? new Date(order.updatedAt) : null,
+			order.processedAt ? new Date(order.processedAt) : null,
+		]);
+	} catch (err: any) {
+		console.error('Error in upsertOrder:', err, 'Order data:', order);
+	}
 }
 
 export async function upsertOrderLineItem(orderId: string, lineItem: any) {
@@ -79,17 +110,43 @@ export async function upsertOrderLineItem(orderId: string, lineItem: any) {
         updated_at = VALUES(updated_at)
     `;
 
-	await pool.execute(sql, [
-		orderId.replace(/\D/g, ''),
-		lineItem.id.replace(/\D/g, ''),
-		lineItem.productId ? lineItem.productId.replace(/\D/g, '') : null,
-		lineItem.variantId ? lineItem.variantId.replace(/\D/g, '') : null,
-		lineItem.title,
-		lineItem.quantity,
-		lineItem.originalUnitPriceSet?.shopMoney?.amount ?? 0,
-		lineItem.sku ?? '',
-		lineItem.vendor ?? '',
-		lineItem.createdAt ? new Date(lineItem.createdAt) : null,
-		lineItem.updatedAt ? new Date(lineItem.updatedAt) : null,
-	]);
+	try {
+		const safeOrderId = orderId
+			? orderId.toString().replace(/\D/g, '')
+			: null;
+		const lineItemId = lineItem.id
+			? lineItem.id.toString().replace(/\D/g, '')
+			: null;
+		const productId = lineItem.productId
+			? lineItem.productId.toString().replace(/\D/g, '')
+			: null;
+		const variantId = lineItem.variantId
+			? lineItem.variantId.toString().replace(/\D/g, '')
+			: null;
+
+		if (!safeOrderId || !lineItemId) {
+			console.warn('Line item upsert skipped: missing IDs:', {
+				orderId,
+				lineItemId,
+				lineItem,
+			});
+			return;
+		}
+
+		await pool.execute(sql, [
+			safeOrderId,
+			lineItemId,
+			productId,
+			variantId,
+			lineItem.title ?? null,
+			lineItem.quantity ?? null,
+			lineItem.originalUnitPriceSet?.shopMoney?.amount ?? 0,
+			lineItem.sku ?? null,
+			lineItem.vendor ?? null,
+			lineItem.createdAt ? new Date(lineItem.createdAt) : null,
+			lineItem.updatedAt ? new Date(lineItem.updatedAt) : null,
+		]);
+	} catch (err: any) {
+		console.error('Error in upsertOrderLineItem:', err, 'Data:', lineItem);
+	}
 }
