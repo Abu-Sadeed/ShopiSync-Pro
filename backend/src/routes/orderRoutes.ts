@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {fetchOrders} from '../services/orderService';
+import {fetchOrders, fetchSingleOrder} from '../services/orderService';
 
 const router = Router();
 
@@ -18,3 +18,19 @@ router.get('/orders', async (req, res) => {
 		res.status(500).json({error: err.message});
 	}
 });
+
+router.get('/orders/:orderId', async (req, res): Promise<any> => {
+	const {orderId} = req.params;
+	try {
+		const orderDetails = await fetchSingleOrder(orderId);
+		if (!orderDetails) {
+			return res.status(404).json({error: 'Order not found'});
+		}
+
+		res.json(orderDetails);
+	} catch (err: any) {
+		res.status(500).json({error: err.message});
+	}
+});
+
+export default router;
