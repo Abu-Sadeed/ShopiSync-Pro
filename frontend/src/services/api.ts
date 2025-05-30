@@ -1,11 +1,33 @@
-export async function getOrders() {
-	try {
-		const res = await fetch('http://localhost:4000/api/shopify-orders');
-		console.log('Fetching orders:', res);
-		if (!res.ok) throw new Error('Failed to fetch orders');
-		return res.json();
-	} catch (error: unknown) {
-		console.error('Error fetching orders:', error);
-		throw error;
-	}
+export async function getOrders({
+	page = 1,
+	limit = 10,
+	search = '',
+	sort = '',
+}: {
+	page?: number;
+	limit?: number;
+	search?: string;
+	sort?: string;
+} = {}) {
+	const params = new URLSearchParams({
+		page: String(page),
+		limit: String(limit),
+		search,
+		sort,
+	});
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_API_BASE_URL}/orders?${params}`,
+		{cache: 'no-store'},
+	);
+	if (!res.ok) throw new Error('Failed to fetch orders');
+	return res.json();
+}
+
+export async function getOrder(orderId: string) {
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_API_BASE_URL}/orders/${orderId}`,
+		{cache: 'no-store'},
+	);
+	if (!res.ok) throw new Error('Order not found');
+	return res.json();
 }
