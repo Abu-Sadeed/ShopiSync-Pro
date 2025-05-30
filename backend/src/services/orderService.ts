@@ -74,7 +74,6 @@ export async function fetchSingleOrder(orderId: string) {
 
 		if (!order) return null;
 
-		// Get line items
 		const [lineItems]: any = await pool.query(
 			`SELECT * FROM order_line_items WHERE order_id = ?`,
 			[orderId],
