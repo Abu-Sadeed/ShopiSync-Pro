@@ -1,6 +1,6 @@
 'use client';
 
-import {useSearchParams} from 'next/navigation';
+import {useParams} from 'next/navigation';
 import {useEffect, useState} from 'react';
 import {getOrder} from '../../services/api';
 import {Order} from '../../types/order';
@@ -9,11 +9,11 @@ import {Card, CardContent} from '../ui/card';
 const OrdersPage = () => {
 	const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 	const [loading, setLoading] = useState(true);
-	const params = useSearchParams();
+	const params = useParams();
 
 	useEffect(() => {
-		getOrder(params.get('orderId') ?? '')
-			.then((data) => setSelectedOrder(data.order))
+		getOrder((params.orderId as string) ?? '')
+			.then((data) => setSelectedOrder(data))
 			.catch(console.error)
 			.finally(() => setLoading(false));
 	}, [params]);
@@ -31,8 +31,8 @@ const OrdersPage = () => {
 	if (!selectedOrder) {
 		return (
 			<Card>
-				<CardContent className="p-4 text-gray-500">
-					Select an order to see details.
+				<CardContent className="p-4 text-red-500">
+					Order not found.
 				</CardContent>
 			</Card>
 		);
