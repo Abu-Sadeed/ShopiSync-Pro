@@ -6,7 +6,7 @@ import {Order} from '../../types/order';
 
 import {getOrders} from '../../services/api';
 import {DataTable} from './data-table';
-import {orderColumns} from './OrderColumn';
+import {orderColumnDefs} from './OrderColumn';
 
 export default function OrdersTable() {
 	const [orders, setOrders] = useState<Order[]>([]);
@@ -26,7 +26,7 @@ export default function OrdersTable() {
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 			<div>
 				<DataTable
-					columns={orderColumns}
+					columns={orderColumnDefs}
 					data={orders}
 					setSelectedOrder={setSelectedOrder}
 				/>
@@ -40,19 +40,20 @@ export default function OrdersTable() {
 							</div>
 							<div>
 								<strong>Customer:</strong>{' '}
-								{selectedOrder.customer.email}{' '}
+								{selectedOrder.customer_email}
 							</div>
 							<div>
 								<strong>Total:</strong>{' '}
-								{selectedOrder.totalPriceSet.shopMoney.amount}{' '}
-								{
-									selectedOrder.totalPriceSet.shopMoney
-										.currencyCode
-								}
+								{selectedOrder.total_price}{' '}
+								{selectedOrder.currency}
 							</div>
 							<div>
-								<strong>Created:</strong>{' '}
-								{selectedOrder.createdAt.toLocaleDateString()}{' '}
+								<strong>Financial Status:</strong>{' '}
+								{selectedOrder.financial_status}
+							</div>
+							<div>
+								<strong>Fulfillment Status:</strong>{' '}
+								{selectedOrder.fulfillment_status}
 							</div>
 						</CardContent>
 					</Card>

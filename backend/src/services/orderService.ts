@@ -33,7 +33,7 @@ export async function fetchOrders(
             ORDER BY ${orderBy}
             LIMIT ? OFFSET ?
             `,
-			[...params, limit, offset],
+			[...params, Number(limit), Number(offset)],
 		);
 
 		const [[{total}]]: any = await pool.query(
