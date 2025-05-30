@@ -1,6 +1,6 @@
 'use client';
 
-import {useParams} from 'next/navigation';
+import {useParams, useRouter} from 'next/navigation';
 import {useEffect, useState} from 'react';
 import {getOrder} from '../../services/api';
 import {Order} from '../../types/order';
@@ -10,6 +10,7 @@ const OrdersPage = () => {
 	const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 	const [loading, setLoading] = useState(true);
 	const params = useParams();
+	const router = useRouter();
 
 	useEffect(() => {
 		getOrder((params.orderId as string) ?? '')
@@ -41,6 +42,11 @@ const OrdersPage = () => {
 	return (
 		<Card className="w-full max-w-2xl mx-auto mt-4">
 			<CardContent className="space-y-2 p-4">
+				<button
+					onClick={() => router.push('/')}
+					className="w-full border shadow ">
+					Back
+				</button>
 				<div className="text-xl font-semibold">
 					Order #{selectedOrder.id}
 				</div>
