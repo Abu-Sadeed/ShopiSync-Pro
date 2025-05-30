@@ -1,17 +1,17 @@
 export async function getOrders({
 	page = 1,
-	limit = 10,
+	pageSize = 10,
 	search = '',
 	sort = '',
 }: {
 	page?: number;
-	limit?: number;
+	pageSize?: number;
 	search?: string;
 	sort?: string;
 } = {}) {
 	const params = new URLSearchParams({
 		page: String(page),
-		limit: String(limit),
+		limit: String(pageSize),
 		search,
 		sort,
 	});
