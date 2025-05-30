@@ -1,5 +1,4 @@
 'use client';
-
 import {
 	ColumnDef,
 	flexRender,
@@ -15,23 +14,25 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import {useRouter} from 'next/navigation';
+import {Order} from '../../types/order';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
-	setSelectedOrder: (order: TData | null) => void;
 }
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
-	setSelectedOrder,
 }: Readonly<DataTableProps<TData, TValue>>) {
 	const table = useReactTable({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 	});
+
+	const router = useRouter();
 
 	return (
 		<div className="rounded-md border">
@@ -60,8 +61,14 @@ export function DataTable<TData, TValue>({
 						table.getRowModel().rows.map((row) => (
 							<TableRow
 								key={row.id}
+								className="cursor-pointer hover:bg-gray-100"
 								data-state={row.getIsSelected() && 'selected'}
-								onClick={() => setSelectedOrder(row.original)}>
+								// onClick={() => setSelectedOrder(row.original)}
+								onClick={() =>
+									router.push(
+										`/orders/${(row.original as Order).id}`,
+									)
+								}>
 								{row.getVisibleCells().map((cell) => (
 									<TableCell key={cell.id}>
 										{flexRender(
