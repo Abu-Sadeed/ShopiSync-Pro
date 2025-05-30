@@ -10,6 +10,8 @@ export type Order = {
 			currencyCode: string;
 		};
 	};
+	createdAt: Date;
+	updatedAt: Date;
 };
 export type OrderListResponse = {
 	edges: {
